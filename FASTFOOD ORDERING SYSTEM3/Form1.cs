@@ -1,23 +1,19 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
 using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace FASTFOOD_ORDERING_SYSTEM3
 {
-    public partial class Form1 : Form
+
+    public partial class Form1 : Form 
     {
         string[,] menuItems = new string[3, 2]{
                 {"Menu 1", "10"},
-                {"Menu 2", "4"},
-                {"Menu 3", "5"}
+                {"Menu 2", "20"},
+                {"Menu 3", "30"}
             };
-        
+        double totalAmount = 0.0;
+        int qty;
         public Form1()
         {
             InitializeComponent();
@@ -33,18 +29,66 @@ namespace FASTFOOD_ORDERING_SYSTEM3
 
         private void button1_Click(object sender, EventArgs e)
         {
-            String menuName = menuItems[comboBox1.SelectedIndex, 0];
-            String menuAmount = menuItems[comboBox1.SelectedIndex, 1];
-            int qty = Convert.ToInt32(Math.Round(numericUpDown1.Value, 0));
-            int total = Convert.ToInt32(menuAmount) * qty;
-            this.dataGridView1.Rows.Add(menuName, menuAmount, qty, total);
+            int currentItemQty = Convert.ToInt32(numericUpDown1.Value);
+            if (comboBox1.SelectedIndex > -1 )
+            {
+                if (currentItemQty > 0)
+                {
+                    qty = currentItemQty;
+
+                    if (qty > 0)
+                    {
+                        String menuName = menuItems[comboBox1.SelectedIndex, 0];
+                        String menuAmount = menuItems[comboBox1.SelectedIndex, 1];
+                        totalAmount += Convert.ToInt32(menuAmount) * qty;
+                        this.dataGridView1.Rows.Add(menuName, menuAmount, qty, Convert.ToInt32(menuAmount) * qty);
+
+                    }
+                }
+                
+            }
+
 
 
         }
 
-        private void dataGridView1_CellContentClick(object sender, DataGridViewCellEventArgs e)
+        private void button2_Click(object sender, EventArgs e)
         {
+            if (comboBox1.SelectedIndex > -1 && qty > 0)
+            {
+                Form2 frm2 = new Form2(totalAmount, dataGridView1);
+                frm2.ShowDialog();
+            }
 
+                
         }
+
+
+        private DataTable GetDataTableFromDGV(DataGridView dgv)
+        {
+            var dt = new DataTable();
+            foreach (DataGridViewColumn column in dgv.Columns)
+            {
+                if (column.Visible)
+                {
+                    // You could potentially name the column based on the DGV column name (beware of dupes)
+                    // or assign a type based on the data type of the data bound to this DGV column.
+                    dt.Columns.Add();
+                }
+            }
+
+            object[] cellValues = new object[dgv.Columns.Count];
+            foreach (DataGridViewRow row in dgv.Rows)
+            {
+                for (int i = 0; i < row.Cells.Count; i++)
+                {
+                    cellValues[i] = row.Cells[i].Value;
+                }
+                dt.Rows.Add(cellValues);
+            }
+
+            return dt;
+        }
+
     }
 }
